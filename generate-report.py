@@ -3,12 +3,11 @@ import requests
 import json
 import time
 
-HOST = 'partner-engineering-saas.us.qlikcloud.com'
+HOST = 'xxxx.us.qlikcloud.com'
 KEY = os.getenv('APIKEY')
-KEY = 'eyJhbGciOiJFUzM4NCIsImtpZCI6ImMwN2Y2NGE1LWVhMzktNDMyZC05MDU4LWMwMjk4MzIzNTc3ZiIsInR5cCI6IkpXVCJ9.eyJzdWJUeXBlIjoidXNlciIsInRlbmFudElkIjoiZUVnbkc4eWRIQVdpSnJFaTVuVVdiM1paZHpXS1R2T3MiLCJqdGkiOiJjMDdmNjRhNS1lYTM5LTQzMmQtOTA1OC1jMDI5ODMyMzU3N2YiLCJhdWQiOiJxbGlrLmFwaSIsImlzcyI6InFsaWsuYXBpL2FwaS1rZXlzIiwic3ViIjoiNjI1MDNiNGFjNjRhZjYyNTRmNDg4OWMzIn0.ofB8gI7HJnFO1MIv4MG3ajIKuqiUEq4puahS3jyLWL00QFOoS0fnF0mxF8Kwxyc3AvjSo2TfaNHNBKC3TMB92HV6h668cXtgR2TfYXCS4v_Pwuf5s3vLEoxKgailxnNN'
-
-
 HDR = {"Authorization": f"Bearer {KEY}"}
+
+
 
 REPORT = {
     "type": "composition-1.0",
