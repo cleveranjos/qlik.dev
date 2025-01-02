@@ -1,10 +1,26 @@
 from qlik_sdk import Qlik
+"""
+This script generates a PDF report using the Qlik API.
+The report is defined by the REPORT dictionary, which specifies the composition, output type, and templates for the report.
+Modules:
+    qlik_sdk (Qlik): A module to interact with the Qlik API.
+    utils.config (getConfig): A module to get configuration settings.
+    utils.helpers (return_relative_url): A module to return relative URLs.
+    logging: A module for logging information.
+    time: A module for time-related functions.
+    json: A module for JSON manipulation.
+Constants:
+    REPORT (dict): A dictionary defining the report composition and templates.
+Functions:
+    main: The main function that generates the report and handles the response.
+Usage:
+    Run this script directly to generate a PDF report and save it as 'report.pdf'.
+"""
 from utils.config import getConfig
 from utils.helpers import return_relative_url
 import logging
 import time
 import json
-from urllib.parse import urlparse
 
 REPORT = {
     "type": "composition-1.0",
