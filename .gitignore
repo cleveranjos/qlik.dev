@@ -1,2 +1,4 @@
 /lineage.py
 /report.pdf
+node_modules/
+*.env
