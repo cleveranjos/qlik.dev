@@ -62,7 +62,7 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         main()
     else:
-        print("Usage: python qcdi-clean-project.py <project_id>")        
+        print("Usage: python qcdi-clean-project.py --project_id <project_id>")        
