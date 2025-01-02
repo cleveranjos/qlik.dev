@@ -1,0 +1,8 @@
+[project]
+name = "Qlik.Dev samples"
+version = "0.1.0"
+description = "Code Snippets to be used with Qlik Cloud APIs"
+authors = ["cuv@qlik.com"]
+dependencies = [
+  "qlik_sdk"
+]

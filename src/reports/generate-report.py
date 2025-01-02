@@ -7,8 +7,6 @@ HOST = 'xxxx.us.qlikcloud.com'
 KEY = os.getenv('APIKEY')
 HDR = {"Authorization": f"Bearer {KEY}"}
 
-
-
 REPORT = {
     "type": "composition-1.0",
     "output": {
