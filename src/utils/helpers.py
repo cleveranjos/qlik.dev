@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from tabulate import tabulate
 from json import loads
 
@@ -21,3 +22,8 @@ def check_next(data):
         if 'next' in data['links']:
             return data['links']['next']
     return None 
+def return_relative_url(url:str):
+    url = urlparse(url)
+    if "v1" in url.path:
+        return url.path.split("v1")[1]
+    return url.path

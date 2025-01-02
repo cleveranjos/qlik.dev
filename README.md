@@ -6,9 +6,9 @@ A collection for interaction with Qlik Cloud using Python
 
 ## Installation
 
-. Download this project
-. Install the requirements.txt
-. Create a file qlikcloud.env with QCS_SERVER and QCS_API_KEY tags
+1. Download this project
+2. Install the requirements.txt
+3. Create a file qlikcloud.env with QCS_SERVER and QCS_API_KEY tags
 
 ## Usage
 

@@ -1,11 +1,10 @@
-import os
-import requests
-import json
+from qlik_sdk import Qlik
+from utils.config import getConfig
+from utils.helpers import return_relative_url
+import logging
 import time
-
-HOST = 'xxxx.us.qlikcloud.com'
-KEY = os.getenv('APIKEY')
-HDR = {"Authorization": f"Bearer {KEY}"}
+import json
+from urllib.parse import urlparse
 
 REPORT = {
     "type": "composition-1.0",
@@ -59,28 +58,35 @@ REPORT = {
     ]
 }
 
-r = requests.post(f"https://{HOST}/api/v1/reports", headers=HDR, json=REPORT)
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    if (config := getConfig()):
+        q = Qlik(config)
+        response = q.rest(method="POST", path="/reports",  data=REPORT)
 
-if r.status_code != 202:
-    print(r.content)
-    exit 
+        if response.status_code != 202:
+            logging.error(response.content)
+            exit()
 
-status = r.headers['location']
-sec = 60
-while sec > 0:
-    r = requests.get(status, headers=HDR)
-    if r.status_code == 200:
-        j = json.loads(r.content)
-        if j['status'] in ['failed','aborted','aborting']:
-            print(j)
-            exit
-        if j['status'] == 'done':
-            pdf = j['results'][0]['location']
-            if len(pdf):
-                r = requests.get(pdf,headers=HDR)
-                if r.status_code == 200:
-                   with open('report.pdf','wb') as file:
-                       file.write(r.content)    
-            exit 
-    sec = sec - 5
-    time.sleep(1)
+        status = return_relative_url(response.headers['location'])
+        sec = 60
+        while sec > 0:
+            r = q.rest(path=status)
+            if r.status_code == 200:
+                j = json.loads(r.content)
+                if j['status'] in ['failed', 'aborted', 'aborting']:
+                    print(j)
+                    exit()
+                if j['status'] == 'done':
+                    pdf = return_relative_url(j['results'][0]['location'])
+                    if len(pdf):
+                        r = q.rest(path=pdf)
+                        if r.status_code == 200:
+                            with open('report.pdf', 'wb') as file:
+                                file.write(r.content)
+                        else:
+                            logging.error(f"Failed to download PDF. Status code: {
+                                          r.status_code}")
+                    exit()
+            sec -= 5
+            time.sleep(5)
