@@ -3,4 +3,5 @@
 launch.json
 .vscode
 report.pdf
-* copy.py
+*copy.py
+__pycache__
