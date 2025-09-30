@@ -1,16 +1,14 @@
 from qlik_sdk import Qlik 
 from utils.config import getConfig
-from utils.helpers import print_table, check_next
+from utils.helpers import print_table, iterate_over_next
 import logging
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    headers = ["id","name","ownerId","createdAt"]
-    if (config := getConfig()):
-        q = Qlik(config)
-        a = q.rest(path="/items?resourceType=app&limit=100")
-        print_table(a.text,headers)
-        while (next := check_next(a.text)):
-            a = q.rest(path=next['href'])
-            print_table(a.text,headers)     
-    else:
-        logging.error("Configuration could not be loaded. Please check the config file and ensure it is correctly formatted and accessible.")
+    if not (config := getConfig()):
+        logging.error("Failed to load configuration.")
+        exit(1)
+    cols = ["id","name","spaceId","ownerId","createdAt"]
+    results = []
+    for r in iterate_over_next(Qlik(config), "/items?resourceType=app&limit=100",cols):
+        results = results + r
+    print_table(results)     

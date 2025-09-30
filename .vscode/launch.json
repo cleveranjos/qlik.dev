@@ -1,7 +1,7 @@
 {
     "version": "0.2.0",
     "python.locator": "js",
-    "justMyCode": false,	
+    "justMyCode": false,
     "configurations": [
         {
             "name": "Python Debugger: Current File",
@@ -13,7 +13,8 @@
                 "PYTHONPATH": "${workspaceFolder}/src/utils/"
             },
             "args": [
-               "--project_id",    "66d88eea5c7aa0dd89f16adc",
+                //"--item_id",                "657876e35d933c08b7ecbe56",
+                "--project_id",             "67ea8fb2041b5ace1adba7ba",
                 //"--app_id",        "5ab9e279-db6f-4561-bc81-f3afd7583ba3"
             ]
         }

@@ -13,39 +13,25 @@ Arguments:
 """
 from qlik_sdk import Qlik
 from utils.config import getConfig
-from utils.helpers import print_table, shrink_table
+from utils.helpers import print_table, iterate_over_next
 import argparse
 import logging
 
-
-def get_status(q: Qlik, project_id: str, task_id: str):
-    response = q.rest(
-        path=f"/di-projects/{project_id}/di-tasks/{task_id}/runtime/state")
-    if response.status_code != 200:
-        return "Not Found"
-    response_json = response.json()
-    if "runReadiness" not in response_json:
-        return "Not Found"
-    if "state" not in response_json["runReadiness"]:
-        return "Not Found"
-    return response_json["runReadiness"]["state"]
-
-
-def main(project_id: str):
-    if (config := getConfig()):
-        q = Qlik(config)
-        response = q.rest(path=f"/di-projects/{project_id}/di-tasks")
-        for t in (d := shrink_table(response.text, ["id", "name", "type"])):
-            t['status'] = get_status(q, project_id, t['id'])
-        print_table(d, ["id", "name", "type", 'status'])
-
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    if not (config := getConfig()):
+        logging.error("Failed to load configuration.")
+        exit(1)    
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--project_id", help="Project Id")
     args = parser.parse_args()
     if args.project_id:
-        main(args.project_id)
+        results = []
+        cols = ["id", "name", "type", 'status']
+        for r in iterate_over_next(Qlik(config), f"/di-projects/{args.project_id}/di-tasks",cols):
+            results = results + r 
+            print_table(results)  
     else:
-        logging.error("Usage: python qcdi-project-list-tasks.py --project_id <project_id>")
+        logging.error("Usage: python qcdi-project-list-tasks.py --project_id <project_id>")               
+      
+

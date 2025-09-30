@@ -1,29 +1,70 @@
 """
-This script retrieves and prints a list of users from a Qlik server using the Qlik SDK.
-Modules:
-    qlik_sdk (Qlik): A module to interact with Qlik server.
-    utils.config (getConfig): A module to get configuration settings.
-    utils.helpers (print_table, check_next): Helper functions for printing tables and checking for next pages.
-    logging: A module for logging information and errors.
-Functions:
-    main: The main function that sets up logging, retrieves configuration, and fetches user data from Qlik server.
+List Active Qlik Users
+
+This script retrieves and displays a list of active users from the Qlik platform.
+It shows essential user information including ID, name, status, creation date,
+and subject identifier.
+
 Usage:
-    Run this script directly to fetch and print the list of users from the Qlik server.
+    python users-list.py
 """
-from qlik_sdk import Qlik 
+
+from qlik_sdk import Qlik, Config
 from utils.config import getConfig
-from utils.helpers import print_table, check_next
+from utils.helpers import print_table, iterate_over_next
+from typing import List, Dict, Any
 import logging
+import sys
+
+def get_active_users(client: Qlik, columns: List[str]) -> List[Dict[str, Any]]:
+    """
+    Retrieve all active users from the Qlik platform.
+    
+    Args:
+        client: Authenticated Qlik client instance
+        columns: List of user attributes to retrieve
+        
+    Returns:
+        List of dictionaries containing user information
+    """
+    results = []
+    api_path = "/users?limit=100&filter%3Dstatus%20eq%20'active'"
+    
+    try:
+        for page in iterate_over_next(client, api_path, columns):
+            results = results + page
+        return results
+    except Exception as e:
+        logging.error(f"Failed to fetch users: {e}")
+        return []
+
+def main() -> None:
+    """Set up logging and retrieve active users."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(message)s'
+    )
+
+    # Initialize Qlik client
+    if not (config := getConfig()):
+        logging.error("Failed to load configuration.")
+        sys.exit(1)
+
+    # Define user attributes to retrieve
+    columns = [
+        "id",        # Unique identifier
+        "name",      # Display name
+        "status",    # Account status
+        "createdAt", # Creation timestamp
+        "subject"    # Subject identifier
+    ]
+
+    # Fetch and display users
+    client = Qlik(config)
+    if users := get_active_users(client, columns):
+        print_table(users)
+    else:
+        logging.info("No active users found.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    headers = ["id", "name", "status"]
-    if (config := getConfig()):
-        q = Qlik(config)
-        a = q.rest(path="/users?limit=100&filter%3Dstatus%20eq%20'active'")
-        print_table(a.text,headers)
-        while (next := check_next(a.text)):
-            a = q.rest(path=next['href'])
-            print_table(a.text,headers)     
-    else:
-        logging.error("Configuration could not be loaded.")
+    main()

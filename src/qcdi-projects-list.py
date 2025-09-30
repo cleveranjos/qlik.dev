@@ -1,31 +1,17 @@
-"""
-This script lists Qlik DI projects using the Qlik SDK.
-Modules:
-    qlik_sdk: Provides the Qlik class for interacting with Qlik services.
-    utils.config: Provides the getConfig function to load configuration settings.
-    utils.helpers: Provides helper functions such as print_table and check_next.
-Functions:
-    main: The main function that executes the script.
-Execution:
-    The script retrieves and prints a list of Qlik DI projects, including their id, name, ownerId, and spaceId.
-    It handles pagination by checking for the next page and retrieving additional projects if available.
-Usage:
-    Run the script directly to list Qlik DI projects.
-"""
+
 from qlik_sdk import Qlik 
 from utils.config import getConfig
-from utils.helpers import print_table, check_next
+from utils.helpers import print_table, iterate_over_next
 import logging
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    headers = ["id","name","ownerId","spaceId"]
-    if (config := getConfig()):
-        q = Qlik(config)
-        a = q.rest(path="/di-projects")
-        print_table(a.text,headers)
-        while (next := check_next(a.text)):
-            a = q.rest(path=next['href'])
-            print_table(a.text,headers)     
-    else:
-        logging.error("Configuration could not be loaded.")
+    if not (config := getConfig()):
+        logging.error("Failed to load configuration.")
+        exit(1)
+    results = []
+    q = Qlik(config)
+    cols = ["id","name","ownerId","spaceId"]
+    for r in iterate_over_next(Qlik(config), "/di-projects",cols):
+        results = results + r
+    print_table(results)
