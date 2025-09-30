@@ -56,7 +56,6 @@ def main() -> None:
         "name",      # Display name
         "status",    # Account status
         "createdAt", # Creation timestamp
-        "subject"    # Subject identifier
     ]
 
     # Fetch and display users
