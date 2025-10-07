@@ -17,25 +17,30 @@ Typical usage example:
     >>> print_table(results)
 """
 
-from urllib.parse import urlparse
 from tabulate import tabulate
 from json import loads, JSONDecodeError
 from typing import List, Dict, Optional, Any, Iterator, Union
 from qlik_sdk import Qlik
+import logging
 
 
-def print_table(data: Dict[str, Any]) -> None:
+def print_table(data: Dict[str, Any], runningTotalColumn:Optional[str]=None) -> None:
     """
     Print a dictionary as a formatted table using tabulate.
 
     Args:
-        data: Dictionary containing the data to be displayed in table format.
+        data: Dictionary array containing the data to be displayed in table format.
             Each key becomes a column header, and the values form the rows.
 
     Example:
         >>> data = {'Name': ['John', 'Jane'], 'Age': [25, 30]}
         >>> print_table(data)
     """
+    if runningTotalColumn:
+        total = 0
+        for _, row in enumerate(data):
+            total += row.get(runningTotalColumn, 0) if isinstance(row.get(runningTotalColumn, 0), (int, float)) else 0
+            row[runningTotalColumn+'total'] = total
     print(tabulate(data, headers="keys", tablefmt="simple", showindex=True))
 
 
@@ -85,6 +90,35 @@ def return_relative_url(url: str) -> str:
     (_, _, path) = url.partition('/v1')
     return path
 
+def add_user_column(
+    q: Qlik,
+    data: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """
+    Add a 'User' column to the data by mapping user IDs to names.
+
+    Args:
+        q: Qlik API client instance
+        data: List of dictionaries containing data to be enriched
+
+    Returns:
+        The input data with an additional 'User' column
+    """
+    if not data:
+        return []
+
+    # Build user id to name mapping
+    user_map = {}
+    for page in iterate_over_next(q, "/users?limit=100", ["id", "name"]):
+        if page:
+            user_map.update({user['id']: user['name'] for user in page})
+
+    # Add user names to data
+    for row in data:
+        owner_id = row.get('ownerId')
+        row['ownerId'] = f"{owner_id} ({user_map.get(owner_id, 'Unknown')})"
+
+    return data
 
 def iterate_over_next(
     q: Qlik,
@@ -142,6 +176,8 @@ def iterate_over_next(
             path = return_relative_url(next_link) if next_link else None
 
         except (JSONDecodeError, Exception) as e:
+            logging.basicConfig(level=logging.INFO)
+            logging.error("Failed to get or parse data: %s", e)
             yield None
             break
 
