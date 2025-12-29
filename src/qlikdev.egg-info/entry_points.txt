@@ -1,0 +1,2 @@
+[console_scripts]
+qlikdev = qlikdev.cli:main
