@@ -2,6 +2,8 @@
 
 Lightweight, CLI-friendly helpers for interacting with Qlik Cloud APIs. The repository now ships as a small Python package (`qlikdev`) with subcommands instead of ad-hoc scripts.
 
+> Disclaimer: this is not an official Qlik repository or product. Use at your own discretion.
+
 ## Layout
 
 - `src/qlikdev/` - package code
@@ -50,4 +52,8 @@ The console script `qlikdev` is also installed (e.g., `qlikdev apps list`).
 - Destructive commands (`items delete`, `qcdi clean`, datafile deletions) are opt-in; review before running in production.
 - Keep `qlikcloud.env` out of version control; `*.env` is ignored by default.
 
-Small, focused examples are still the goal—now wrapped in a maintainable package. 
+## License
+
+MIT - see `LICENSE`.
+
+Small, focused examples are still the goal-now wrapped in a maintainable package. 
