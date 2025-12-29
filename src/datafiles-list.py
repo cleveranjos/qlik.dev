@@ -1,45 +1,4 @@
-"""
-datafiles-list.py
------------------
-
-Query Qlik for large data files (QVD/CSV), enrich results with owner info and
-print a sorted table.
-
-This module:
-- Loads API configuration via utils.config.getConfig()
-- Queries the /data-files endpoint for *.qvd and *.csv files (paginated)
-- Enriches rows with user display names via utils.helpers.add_user_column
-- Sorts results by file size (descending) and prints a formatted table
-
-Usage:
-    python datafiles-list.py
-
-Notes:
-- iterate_over_next is assumed to yield pages (lists) of file dicts.
-- Adjust DEFAULT_COLS and PATTERNS to change requested fields or search filters.
-"""
-from typing import List
-from qlik_sdk import Qlik
-from utils.config import getConfig
-from utils.helpers import print_table, iterate_over_next, add_user_column
-import logging
-
-# API patterns to collect pages for QVD and CSV files
-PATTERNS: List[str] = ["*.qvd", "*.csv"]
+from qlikdev.cli import main
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    if not (config := getConfig()):
-        logging.error("Failed to load configuration.")
-        exit(1)
-    cols = ["id", "name", "ownerId", "size"]
-    q = Qlik(config)
-    results = []
-    logging.info("Collecting data files...")
-    for pattern in PATTERNS:
-        for r in iterate_over_next(q, f"/data-files?limit=100&includeAllSpaces=true&includeFolders=true&sort=-size&baseNameWildcard={pattern}", cols):
-            results = results + r
-    results.sort(key=lambda x: x.get("size", 0), reverse=True)
-    logging.info("Enriching results with user information...")
-    add_user_column(q, results)
-    print_table(results, "size")
+    main(["datafiles", "list"])

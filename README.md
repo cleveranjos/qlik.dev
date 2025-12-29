@@ -1,110 +1,53 @@
-# qlik.dev — Qlik Cloud Python examples
+# qlik.dev - Qlik Cloud Python examples (packaged)
 
-Lightweight collection of small Python scripts that demonstrate how to interact
-with Qlik Cloud via the REST API. The repository is focused on quick examples and
-helpers you can reuse when exploring or automating tasks in a Qlik Cloud tenant.
+Lightweight, CLI-friendly helpers for interacting with Qlik Cloud APIs. The repository now ships as a small Python package (`qlikdev`) with subcommands instead of ad-hoc scripts.
 
-This is an examples repository — it's designed for learning and automation
-experimentation, not as a production-ready SDK.
+## Layout
 
-## Contents
-
-- `src/` — example scripts (listing apps, users, data files, QDI projects, etc.)
-- `src/utils/` — shared helper utilities (API pagination, printing tables, config)
-- `requirements.txt` / `pyproject.toml` — Python dependencies and metadata
+- `src/qlikdev/` - package code
+  - `common/` - config + shared helpers
+  - `apps/`, `datafiles/`, `items/`, `qcdi/`, `knowledgebases/`, `reports/`, `users/` - feature modules
+  - `cli.py` / `__main__.py` - entry point for the `qlikdev` CLI
+- `pyproject.toml` - project metadata and console script wiring
+- `qlikcloud.env.example` - sample env file (copy to `qlikcloud.env` locally)
 
 ## Quickstart
 
 Prerequisites
+- Python 3.10+
+- Access to a Qlik Cloud tenant and an API key
 
-- Python 3.10+ (a virtual environment is recommended)
-- Access to a Qlik Cloud tenant and an API key with sufficient permissions
-
-Install dependencies
-
+Install
 ```powershell
-# from the repo root
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -e .
 ```
 
-Configuration
-
-Create a file named `qlikcloud.env` in `src/` (or in the same directory as the
-script you run) with the following variables:
-
-```
+Configure
+```bash
+# create qlikcloud.env anywhere (repo root is fine)
 QCS_SERVER=https://<your-tenant>.qlikcloud.com
 QCS_API_KEY=<your-api-key>
 ```
+`QLIKDEV_ENV_FILE` can override the env path; by default the CLI searches the current directory and the package root.
 
-The helper `utils/config.py` loads this file and constructs the client
-configuration used by the example scripts.
+## Usage (examples)
 
-How to run an example
+- List apps: `python -m qlikdev apps list`
+- App metadata: `python -m qlikdev apps metadata --app-id <id>`
+- Data files: `python -m qlikdev datafiles list --pattern *.qvd --pattern *.csv`
+- Orphan data files: `python -m qlikdev datafiles orphans --limit 10 [--delete]`
+- Knowledgebases: `python -m qlikdev knowledgebases list`
+- Users: `python -m qlikdev users list`
+- DI projects/tasks: `python -m qlikdev qcdi projects` / `python -m qlikdev qcdi tasks --project-id <id>` / `python -m qlikdev qcdi stop-tasks --project-id <id>` / `python -m qlikdev qcdi clean --project-id <id>` (destructive)
+- Reports: `python -m qlikdev reports generate --definition <json> --output report.pdf`
 
-Each script in `src/` is a standalone example. For example, list large data
-files (QVD/CSV):
+The console script `qlikdev` is also installed (e.g., `qlikdev apps list`).
 
-```powershell
-cd src
-.\.venv\Scripts\python.exe datafiles-list.py
-```
+## Notes
 
-Or list users:
+- Destructive commands (`items delete`, `qcdi clean`, datafile deletions) are opt-in; review before running in production.
+- Keep `qlikcloud.env` out of version control; `*.env` is ignored by default.
 
-```powershell
-.\.venv\Scripts\python.exe users-list.py
-```
-
-Each script prints a human-friendly table to stdout using the helpers in
-`src/utils/helpers.py`.
-
-## Key scripts (examples)
-
-- `apps-list.py` — list apps in the tenant
-- `users-list.py` — list users (supports pagination)
-- `datafiles-list.py` — find large QVD/CSV files and enrich with owner names
-- `qcdi-projects-list.py` — list Qlik Data Integration projects
-- `qcdi-project-clean.py` — helper to delete QDI project tasks and projects (use with care)
-
-## Helpers
-
-`src/utils/helpers.py` contains reusable utilities used by the examples:
-
-- `iterate_over_next` — follow API pagination `links.next` and yield pages
-- `print_table` — format lists/dicts to a readable table
-- `add_user_column` — enrich rows with user display names from the API
-
-If you modify or extend those helpers, add small unit tests where practical.
-
-## Security and safe usage
-
-- Do not commit `qlikcloud.env` or any API keys to version control. Add it to
-	`.gitignore` if you store it in the project folder during development.
-- These scripts may perform destructive actions (see `qcdi-project-clean.py`).
-	Always review the code and test in a non-production tenant before running
-	destructive operations.
-
-## Contributing
-
-Contributions are welcome. Keep changes small and focused. When adding new
-examples, include a brief usage section in the script's module docstring.
-
-1. Fork the repository
-2. Add your change and tests (if applicable)
-3. Open a pull request describing the change
-
-## License
-
-MIT — see the `LICENSE` file in the repository root for details.
-
-## Contact
-
-Open an issue in this repository if you need help or want to suggest examples to
-add.
-
----
-
-Small, well-documented examples are more valuable than large monoliths. 
+Small, focused examples are still the goal—now wrapped in a maintainable package. 

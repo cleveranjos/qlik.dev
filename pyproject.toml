@@ -1,10 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "Qlik.Dev samples"
-version = "0.1.0"
-requires-python = ">=3.8"
-description = "Code Snippets to be used with Qlik Cloud APIs"
-authors = ["cuv@qlik.com"]
+name = "qlikdev"
+version = "0.2.0"
+requires-python = ">=3.10"
+description = "CLI-friendly helpers for Qlik Cloud examples"
+readme = "README.md"
+authors = [{name = "cuv@qlik.com"}]
 dependencies = [
-  "qlik_sdk",
-  "tabulate"
+  "python-dotenv>=1.0.1",
+  "qlik-sdk>=0.17.0",
+  "tabulate>=0.9.0",
+  "numpy>=2.2.1",
+  "numerize>=0.1.5"
 ]
+
+[project.scripts]
+qlikdev = "qlikdev.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
