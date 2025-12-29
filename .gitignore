@@ -7,3 +7,4 @@ launch.json
 report.pdf
 *copy.py
 __pycache__
+.vscode
